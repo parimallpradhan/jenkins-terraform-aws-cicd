@@ -8,21 +8,30 @@ terraform {
 }
 
 provider "aws" {
-region = "us-east-1"
+  region = "us-east-1"
 }
 
 resource "aws_instance" "web" {
-ami           = "ami-0b6d9d3d33ba97d99"
-instance_type = "t3.micro"
+  ami           = "ami-0b6d9d3d33ba97d99"
+  instance_type = "c7i-flex.large"
 
-user_data = <<-EOF
+  user_data = <<-EOF
               #!/bin/bash
 
               apt-get update -y
 
-              apt-get install -y ansible
+                sudo apt update
+                sudo apt install fontconfig openjdk-21-jre
+                java -version  
 
-              ansible --version
+                sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc \
+                https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key
+                echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc]" \
+                https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+                /etc/apt/sources.list.d/jenkins.list > /dev/null
+                sudo apt update
+                sudo apt install jenkins
+
               EOF
 
   tags = {
